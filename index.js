@@ -108,6 +108,6 @@ app.post('/analyze-twitter', async (req, res) => {
 // --- 5. Start the Server ---
 app.listen(PORT, () => {
   console.log(`✅ Server is running on http://localhost:${PORT}`);
-  console.log(`📺 YouTube API: ${YOUTUBE_API_KEY ? 'Configured' : 'Not configured'}`);
+
   console.log(`🐦 Twitter API: ${TWITTER_BEARER_TOKEN ? 'Configured' : 'Not configured'}`);
 });
