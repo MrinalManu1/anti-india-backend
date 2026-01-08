@@ -24,7 +24,8 @@ async function fetchYouTubeComments(apiKey, videoId, maxResults = 1000) {
   try {
     let allComments = [];
     let nextPageToken = null;
-
+    console.log("YT API KEY EXISTS:", !!apiKey);
+    console.log("YT VIDEO ID:", videoId);
     do {
       const response = await youtube.commentThreads.list({
         key: apiKey,
