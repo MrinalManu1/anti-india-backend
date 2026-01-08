@@ -10,7 +10,7 @@ function extractVideoId(url) {
 async function fetchYouTubeComments(apiKey, videoId, maxResults = 100) {
   let comments = [];
   let pageToken = null;
-
+  console.log("YT KEY PRESENT:", !!YOUTUBE_API_KEY);
   while (comments.length < maxResults) {
     const response = await axios.get(
       "https://www.googleapis.com/youtube/v3/commentThreads",
