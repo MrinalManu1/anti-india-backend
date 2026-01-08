@@ -14,6 +14,8 @@ app.use(express.json()); // To parse JSON request bodies
 const PORT = process.env.PORT || 5000;
 const YOUTUBE_API_KEY = process.env.YOUTUBE_API_KEY;
 const TWITTER_BEARER_TOKEN = process.env.TWITTER_BEARER_TOKEN;
+console.log("ALL ENV KEYS:", Object.keys(process.env));
+console.log("YT KEY RAW:", process.env.YOUTUBE_API_KEY);
 
 // Initialize Twitter API
 const twitterAPI = new TwitterAPI(TWITTER_BEARER_TOKEN);
@@ -21,6 +23,14 @@ const twitterAPI = new TwitterAPI(TWITTER_BEARER_TOKEN);
 // --- 2. Create the Analysis function ---
 
 // --- 3. YouTube Analysis Endpoint ---
+app.get("/debug-env", (req, res) => {
+  res.json({
+    ytKeyExists: !!process.env.YOUTUBE_API_KEY,
+    ytKeyPreview: process.env.YOUTUBE_API_KEY?.slice(0, 6),
+    allKeys: Object.keys(process.env)
+  });
+});
+
 app.post('/analyze', async (req, res) => {
   const { url } = req.body;
   
