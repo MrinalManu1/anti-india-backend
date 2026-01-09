@@ -11,7 +11,7 @@ async function analyzeWithHF(comments) {
 
     // Connect to the Gradio space
     client = await Client.connect(HF_SPACE, {
-      hf_token: process.env.HF_TOKEN || undefined // Optional: add HF token if needed
+      hf_token: process.env.HF_TOKEN || undefined
     });
     
     console.log("Connected successfully!");
@@ -21,17 +21,18 @@ async function analyzeWithHF(comments) {
     
     console.log("Sending data to model...");
     
-    // Call the prediction - Gradio Client handles the API format automatically
-    const result = await client.predict("/predict", { 
+    // Use /api_wrapper endpoint
+    const result = await client.predict("/api_wrapper", { 
       input_text: inputJson 
     });
 
     console.log("Received response from HF");
 
-    // Parse the result - it comes back as a string from your api_wrapper
-    const parsedResult = JSON.parse(result.data);
+    // The result.data is an array with the parsed result already
+    // No need to JSON.parse - it's already an object
+    const analysisResult = result.data[0];
     
-    return parsedResult;
+    return analysisResult;
     
   } catch (error) {
     console.error("Gradio Client Error:", {
