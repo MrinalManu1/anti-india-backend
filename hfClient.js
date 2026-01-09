@@ -1,54 +1,55 @@
-const axios = require("axios");
+const { Client } = require("@gradio/client");
 
-const HF_ENDPOINT = "https://Mrinal240305-anti-india-detector.hf.space/api/predict";
+const HF_SPACE = "Mrinal240305/anti-india-detector";
 
 async function analyzeWithHF(comments) {
+  let client;
+  
   try {
-    // Your Gradio app expects a JSON string as input
-    const payload = {
-      data: [
-        JSON.stringify(comments) // Must be stringified JSON
-      ]
-    };
+    console.log(`Connecting to Gradio Space: ${HF_SPACE}...`);
+    console.log(`Processing ${comments.length} comments`);
 
-    console.log("Sending to HF:", {
-      endpoint: HF_ENDPOINT,
-      commentCount: comments.length,
-      samplePayload: JSON.stringify(comments).substring(0, 200)
+    // Connect to the Gradio space
+    client = await Client.connect(HF_SPACE, {
+      hf_token: process.env.HF_TOKEN || undefined // Optional: add HF token if needed
     });
-
-    const response = await axios.post(HF_ENDPOINT, payload, {
-      headers: { 
-        "Content-Type": "application/json"
-      },
-      timeout: 120000 // 2 minutes for cold starts
-    });
-
-    console.log("HF Response received:", response.data);
-
-    // Gradio returns data in response.data.data array
-    const result = response.data.data[0];
     
-    // The result should already be the parsed JSON object
-    return result;
+    console.log("Connected successfully!");
+
+    // The input to your Gradio app is a JSON string
+    const inputJson = JSON.stringify(comments);
+    
+    console.log("Sending data to model...");
+    
+    // Call the prediction - Gradio Client handles the API format automatically
+    const result = await client.predict("/predict", { 
+      input_text: inputJson 
+    });
+
+    console.log("Received response from HF");
+
+    // Parse the result - it comes back as a string from your api_wrapper
+    const parsedResult = JSON.parse(result.data);
+    
+    return parsedResult;
     
   } catch (error) {
-    console.error("HF API Error Details:", {
-      status: error.response?.status,
-      statusText: error.response?.statusText,
-      data: error.response?.data,
+    console.error("Gradio Client Error:", {
       message: error.message,
-      endpoint: HF_ENDPOINT
+      stack: error.stack
     });
     
-    // More specific error messages
-    if (error.response?.status === 405) {
-      throw new Error("Hugging Face endpoint not accessible. The Space might be sleeping or the API format changed.");
-    } else if (error.code === 'ECONNABORTED') {
-      throw new Error("Hugging Face request timed out. The model might be loading (cold start).");
-    }
+    throw new Error(`Hugging Face analysis failed: ${error.message}`);
     
-    throw new Error(`Hugging Face API error: ${error.response?.status || error.message}`);
+  } finally {
+    // Clean up the connection
+    if (client) {
+      try {
+        await client.close();
+      } catch (e) {
+        // Ignore cleanup errors
+      }
+    }
   }
 }
 
