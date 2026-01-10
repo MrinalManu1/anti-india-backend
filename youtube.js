@@ -7,7 +7,7 @@ function extractVideoId(url) {
   return match ? match[1] : null;
 }
 
-async function fetchYouTubeComments(apiKey, videoId, maxResults = 100) {
+async function fetchYouTubeComments(apiKey, videoId, maxResults = 1000) {
   let comments = [];
   let pageToken = null;
   // console.log("YT KEY PRESENT:", !!YOUTUBE_API_KEY);
